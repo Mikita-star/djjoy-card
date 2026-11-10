@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DJ Joy</title>
+<meta name="description" content="DJ Joy. Артист на сцене, а не фоновый плейлист. Клубы и частные события по всей России.">
+<meta name="theme-color" content="#E4E1D8">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="DJ Joy">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://mikita-star.github.io/djjoy-card/">
+<meta property="og:title" content="DJ Joy — артист на сцене">
+<meta property="og:description" content="Артист на сцене, а не фоновый плейлист. Клубы и частные события по всей России.">
+<meta property="og:image" content="https://mikita-star.github.io/djjoy-card/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Golos+Text:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{
+  --bg:#E4E1D8;      /* фон */
+  --ink:#141414;     /* шнурок, текст */
+  --pass:#FF5B1F;    /* пропуск */
+  --muted:#55524B;
+  --tx:0; --ty:0;    /* наклон от -1 до 1 */
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.5 "Golos Text",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.app{position:relative;max-width:430px;min-height:100svh;margin:0 auto;padding:0 22px calc(110px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center}
+
+/* ---------- шнурок ---------- */
+.strap{width:56px;height:clamp(70px,13svh,120px);background:var(--ink);color:var(--bg);font:400 11px/1 "Dela Gothic One";writing-mode:vertical-rl;display:flex;align-items:center;justify-content:center;letter-spacing:.2em;overflow:hidden;white-space:nowrap;flex:none}
+.clip{width:40px;height:26px;border-radius:6px;background:linear-gradient(#d6d6d6,#8a8a8a);margin-top:-4px;position:relative;z-index:3;flex:none;box-shadow:0 2px 3px rgba(0,0,0,.25)}
+
+/* ---------- пропуск: три слоя ----------
+   .hang    — висит на шнурке и качается после переворота
+   .tilt    — небольшой 3D-наклон за телефоном
+   .flipper — переворот лицо / оборот              */
+.scene{width:100%;perspective:1100px;margin-top:-10px}
+.hang{transform-origin:50% 0;transform:rotate(-2deg);transform-style:preserve-3d}
+.hang.swing{animation:swing 1.3s cubic-bezier(.3,.7,.3,1)}
+@keyframes swing{0%{transform:rotate(-2deg)}25%{transform:rotate(4deg)}50%{transform:rotate(-4deg)}75%{transform:rotate(1.5deg)}100%{transform:rotate(-2deg)}}
+.tilt{transform-style:preserve-3d;transform:rotateY(calc(var(--tx) * 10deg)) rotateX(calc(var(--ty) * -7deg))}
+.flipper{position:relative;transform-style:preserve-3d;transition:transform .95s cubic-bezier(.25,1.4,.4,1);cursor:pointer;outline:none}
+.flipper.back-on{transform:rotateY(180deg)}
+.flipper:focus-visible .face{outline:3px solid var(--ink);outline-offset:4px}
+.face{position:relative;background:var(--pass);border-radius:22px;padding:20px 20px 0;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;
+  box-shadow:0 22px 40px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.35)}
+.face.back{position:absolute;inset:0;transform:rotateY(180deg);display:flex;flex-direction:column}
+
+/* ---------- голографическая плёнка ---------- */
+.holo{position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:4;mix-blend-mode:overlay;
+  opacity:calc(.14 + (var(--tx) * var(--tx) + var(--ty) * var(--ty)) * .32);
+  background:
+    linear-gradient(115deg,transparent 35%,rgba(255,255,255,.85) 48%,rgba(255,255,255,.15) 54%,transparent 64%),
+    linear-gradient(115deg,transparent 0%,#ff4fd8 18%,#7b6cff 30%,#2ee6ff 42%,#5dff9c 54%,#ffe45e 66%,#ff4fd8 78%,transparent 100%);
+  background-size:300% 100%,300% 100%;
+  background-position:calc(50% + var(--tx) * 50%) 0,calc(50% - var(--tx) * 50% - var(--ty) * 20%) 0}
+.sparkle{position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:4;mix-blend-mode:soft-light;opacity:calc(.12 + var(--tx) * var(--tx) * .2);
+  background-image:radial-gradient(rgba(255,255,255,.9) .8px,transparent 1.3px);background-size:7px 7px;
+  background-position:calc(var(--tx) * 6px) calc(var(--ty) * 6px)}
+
+/* ---------- лицевая сторона ---------- */
+.hole{width:56px;height:10px;border-radius:6px;background:var(--bg);margin:0 auto 16px;box-shadow:inset 0 2px 3px rgba(0,0,0,.25)}
+.row{display:flex;justify-content:space-between;font:700 12px "Golos Text"}
+.photo{height:clamp(170px,30svh,250px);border-radius:14px;margin:12px 0 14px;background:url(img/fisheye.jpg) center 20%/cover;filter:grayscale(1) contrast(1.1)}
+.name{font:400 46px/.9 "Dela Gothic One";margin:0}
+.lead{font:700 17px/1.3 "Golos Text";margin:12px 0 6px;max-width:26ch}
+.sub{font-size:15px;line-height:1.4;margin:0 0 18px;max-width:28ch}
+.stub{display:flex;justify-content:space-between;align-items:center;margin:0 -20px;padding:16px 20px;border-top:3px dashed rgba(20,20,20,.45);font:700 14px "Golos Text"}
+.barcode{width:110px;height:34px;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 4px,var(--ink) 4px 7px,transparent 7px 9px)}
+
+/* ---------- оборот: QR-коды ---------- */
+.back h2{font:400 30px/.95 "Dela Gothic One";margin:4px 0 6px}
+.back .hint{font-size:14px;margin:0 0 16px}
+.qrs{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;flex:1;align-content:start}
+.qr{display:flex;flex-direction:column;gap:8px;text-decoration:none;color:var(--ink)}
+.qr i{position:relative;z-index:5;display:grid;place-items:center;aspect-ratio:1;width:72%;align-self:center;border-radius:12px;background:#fff;border:2px dashed rgba(20,20,20,.35);font:500 12px "Golos Text";font-style:normal;color:#8a857b}
+.qr b{font:700 14px "Golos Text";text-align:center}
+.qr .open{position:relative;z-index:5;align-self:center;margin-top:-2px;padding:5px 12px;border-radius:999px;background:var(--ink);color:#fff;font:700 12px "Golos Text";text-decoration:none}
+.back .stub{margin-top:16px}
+
+.tap-hint{margin:18px 0 0;font-size:14px;color:var(--muted);text-align:center;min-height:1.5em}
+
+/* ---------- цифры ---------- */
+.facts{display:flex;justify-content:space-around;width:100%;margin-top:22px;text-align:center}
+.facts b{display:block;font:400 26px "Dela Gothic One"}
+.facts span{font-size:13px;color:var(--muted)}
+
+.main-btn{position:fixed;z-index:20;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom));width:calc(min(430px,100vw) - 24px);height:54px;border-radius:14px;border:0;background:var(--ink);color:#fff;font:700 16px "Golos Text";cursor:pointer}
+.main-btn:active{transform:translateX(-50%) scale(.98)}
+
+@media (prefers-reduced-motion:reduce){
+  .flipper{transition:transform .01s}
+  .hang.swing{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="strap" aria-hidden="true">DJ JOY · DJ JOY · DJ JOY · DJ JOY</div>
+  <div class="clip" aria-hidden="true"></div>
+
+  <div class="scene">
+    <div class="hang" id="hang">
+      <div class="tilt">
+        <div class="flipper" id="flipper" role="button" tabindex="0" aria-pressed="false" aria-label="Перевернуть пропуск: QR-коды соцсетей">
+
+          <!-- лицо -->
+          <div class="face front">
+            <div class="hole"></div>
+            <div class="row"><span>Артист</span><span>с 2019</span></div>
+            <div class="photo" role="img" aria-label="DJ Joy"></div>
+            <p class="name">DJ JOY</p>
+            <p class="lead">Артист на сцене, а не фоновый плейлист.</p>
+            <p class="sub">Клубы и частные события по всей России.</p>
+            <div class="stub"><span>Пропуск за пульт</span><span class="barcode"></span></div>
+            <div class="holo"></div><div class="sparkle"></div>
+          </div>
+
+          <!-- оборот -->
+          <div class="face back" aria-hidden="true">
+            <div class="hole"></div>
+            <h2>На связи</h2>
+            <p class="hint">Наведи камеру на нужный код.</p>
+            <div class="qrs">
+              <div class="qr"><i>QR</i><b>Telegram</b><a class="open" href="https://t.me/dj_nik_joy" target="_blank" rel="noopener">Открыть</a></div>
+              <div class="qr"><i>QR</i><b>Instagram*</b><a class="open" href="https://www.instagram.com/dj.nik_joy/" target="_blank" rel="noopener">Открыть</a></div>
+              <div class="qr"><i>QR</i><b>ВКонтакте</b><a class="open" href="https://vk.com/joy_dj" target="_blank" rel="noopener">Открыть</a></div>
+              <div class="qr"><i>QR</i><b>WhatsApp</b><a class="open" href="https://wa.me/79223165450" target="_blank" rel="noopener">Открыть</a></div>
+            </div>
+            <div class="stub"><span>Нажми, чтобы вернуть</span><span class="barcode"></span></div>
+            <div class="holo"></div><div class="sparkle"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="tap-hint" id="tapHint">Нажми на пропуск, чтобы перевернуть</p>
+
+  <div class="facts">
+    <div><b>700+</b><span>событий</span></div>
+    <div><b>2019</b><span>за пультом</span></div>
+    <div><b>РФ</b><span>вся страна</span></div>
+  </div>
+</div>
+
+<button class="main-btn" id="mainBtn">Оставить заявку</button>
+
+<script>
+const root = document.documentElement;
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const tg = window.Telegram && Telegram.WebApp && Telegram.WebApp.initData ? Telegram.WebApp : null;
+
+if (tg){
+  tg.ready(); tg.expand();
+  try { tg.setHeaderColor("#E4E1D8"); tg.setBackgroundColor("#E4E1D8"); } catch(e){}
+}
+
+/* ---------- переворот ---------- */
+const flipper = document.getElementById("flipper"), hang = document.getElementById("hang");
+const front = flipper.querySelector(".front"), back = flipper.querySelector(".back");
+const hint = document.getElementById("tapHint");
+let flipped = false;
+function flip(){
+  flipped = !flipped;
+  flipper.classList.toggle("back-on", flipped);
+  flipper.setAttribute("aria-pressed", flipped);
+  front.setAttribute("aria-hidden", flipped); back.setAttribute("aria-hidden", !flipped);
+  hang.classList.remove("swing"); void hang.offsetWidth; hang.classList.add("swing");
+  hint.textContent = flipped ? "Нажми ещё раз, чтобы вернуть" : "Нажми на пропуск, чтобы перевернуть";
+  if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
+  startMotion();
+}
+flipper.addEventListener("click", e => { if (e.target.closest(".open")) return; flip(); });
+flipper.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); flip(); } });
+
+/* ---------- переливание от наклона ---------- */
+let tx = 0, ty = 0, gx = 0, gy = 0, baseBeta = null, motionStarted = false;
+const clamp = v => Math.max(-1, Math.min(1, v));
+function fromAngles(gamma, beta){
+  if (baseBeta === null) baseBeta = beta;          // запоминаем, как человек держит телефон
+  gx = clamp(gamma / 35);
+  gy = clamp((beta - baseBeta) / 30);
+}
+
+function startMotion(){
+  if (motionStarted || reduce) return;
+  // 1) внутри Telegram — его собственный датчик, без запроса разрешения
+  if (tg && tg.DeviceOrientation && tg.isVersionAtLeast && tg.isVersionAtLeast("8.0")){
+    motionStarted = true;
+    tg.DeviceOrientation.start({refresh_rate: 30});
+    tg.onEvent("deviceOrientationChanged", () => {
+      const d = tg.DeviceOrientation;  // радианы
+      fromAngles(d.gamma * 180 / Math.PI, d.beta * 180 / Math.PI);
+    });
+    return;
+  }
+  // 2) обычный браузер; iPhone спрашивает разрешение после нажатия
+  const listen = () => { motionStarted = true; addEventListener("deviceorientation", e => { if (e.gamma != null) fromAngles(e.gamma, e.beta); }); };
+  if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function"){
+    DeviceOrientationEvent.requestPermission().then(s => { if (s === "granted") listen(); }).catch(() => {});
+  } else if ("DeviceOrientationEvent" in window){
+    listen();
+  }
+}
+startMotion();   // на Android и в Telegram стартует сразу
+addEventListener("pointerdown", startMotion, {once:true});   // iPhone: разрешение по первому касанию
+
+// 3) компьютер: переливание за мышкой
+addEventListener("pointermove", e => {
+  if (e.pointerType !== "mouse") return;
+  gx = clamp((e.clientX / innerWidth - .5) * 2);
+  gy = clamp((e.clientY / innerHeight - .5) * 2);
+});
+
+(function loop(){
+  tx += (gx - tx) * .12; ty += (gy - ty) * .12;
+  root.style.setProperty("--tx", tx.toFixed(3));
+  root.style.setProperty("--ty", ty.toFixed(3));
+  requestAnimationFrame(loop);
+})();
+
+/* ---------- заявка ---------- */
+document.getElementById("mainBtn").addEventListener("click", () => {
+  const url = "https://t.me/dj_nik_joy";
+  if (tg) tg.openTelegramLink(url); else open(url, "_blank", "noopener");
+});
+</script>
+</body>
+</html>
