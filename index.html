@@ -47,9 +47,9 @@ body{background:var(--bg);color:var(--ink);font:400 16px/1.5 "Golos Text",system
    .tilt    — небольшой 3D-наклон за телефоном
    .flipper — переворот лицо / оборот              */
 .scene{width:100%;perspective:1100px;margin-top:-10px}
-.hang{transform-origin:50% 0;transform:rotate(-2deg);transform-style:preserve-3d}
+.hang{transform-origin:50% 0;transform:none;transform-style:preserve-3d}
 .hang.swing{animation:swing 1.3s cubic-bezier(.3,.7,.3,1)}
-@keyframes swing{0%{transform:rotate(-2deg)}25%{transform:rotate(4deg)}50%{transform:rotate(-4deg)}75%{transform:rotate(1.5deg)}100%{transform:rotate(-2deg)}}
+@keyframes swing{0%{transform:rotate(0)}25%{transform:rotate(4deg)}50%{transform:rotate(-3deg)}75%{transform:rotate(1.2deg)}100%{transform:rotate(0)}}
 .tilt{transform-style:preserve-3d;transform:rotateY(calc(var(--tx) * 10deg)) rotateX(calc(var(--ty) * -7deg))}
 .flipper{position:relative;display:grid;transform-style:preserve-3d;transition:transform .95s cubic-bezier(.25,1.4,.4,1);cursor:pointer;outline:none}
 .flipper.back-on{transform:rotateY(180deg)}
@@ -193,11 +193,15 @@ flipper.addEventListener("click", e => { if (e.target.closest(".open, .open-tel"
 flipper.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); flip(); } });
 
 /* ---------- переливание от наклона ---------- */
-let tx = 0, ty = 0, gx = 0, gy = 0, baseBeta = null, motionStarted = false;
+let tx = 0, ty = 0, gx = 0, gy = 0, baseBeta = null, baseGamma = null, motionStarted = false;
 const clamp = v => Math.max(-1, Math.min(1, v));
 function fromAngles(gamma, beta){
-  if (baseBeta === null) baseBeta = beta;          // запоминаем, как человек держит телефон
-  gx = clamp(gamma / 35);
+  // запоминаем, как человек держит телефон, и медленно подстраиваемся,
+  // чтобы карточка в покое всегда висела ровно по центру
+  if (baseBeta === null){ baseBeta = beta; baseGamma = gamma; }
+  baseBeta += (beta - baseBeta) * .02;
+  baseGamma += (gamma - baseGamma) * .02;
+  gx = clamp((gamma - baseGamma) / 30);
   gy = clamp((beta - baseBeta) / 30);
 }
 
