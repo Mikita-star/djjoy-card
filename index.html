@@ -36,7 +36,7 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%}
 body{background:var(--bg);color:var(--ink);font:400 16px/1.5 "Golos Text",system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-.app{position:relative;max-width:430px;min-height:100svh;margin:0 auto;padding:0 22px calc(110px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center}
+.app{position:relative;max-width:430px;min-height:100svh;margin:0 auto;padding:0 22px calc(36px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center}
 
 /* ---------- шнурок ---------- */
 .strap{width:56px;height:clamp(70px,13svh,120px);background:var(--ink);color:var(--bg);font:400 11px/1 "Dela Gothic One";writing-mode:vertical-rl;display:flex;align-items:center;justify-content:center;letter-spacing:.2em;overflow:hidden;white-space:nowrap;flex:none}
@@ -51,22 +51,24 @@ body{background:var(--bg);color:var(--ink);font:400 16px/1.5 "Golos Text",system
 .hang.swing{animation:swing 1.3s cubic-bezier(.3,.7,.3,1)}
 @keyframes swing{0%{transform:rotate(-2deg)}25%{transform:rotate(4deg)}50%{transform:rotate(-4deg)}75%{transform:rotate(1.5deg)}100%{transform:rotate(-2deg)}}
 .tilt{transform-style:preserve-3d;transform:rotateY(calc(var(--tx) * 10deg)) rotateX(calc(var(--ty) * -7deg))}
-.flipper{position:relative;transform-style:preserve-3d;transition:transform .95s cubic-bezier(.25,1.4,.4,1);cursor:pointer;outline:none}
+.flipper{position:relative;display:grid;transform-style:preserve-3d;transition:transform .95s cubic-bezier(.25,1.4,.4,1);cursor:pointer;outline:none}
 .flipper.back-on{transform:rotateY(180deg)}
 .flipper:focus-visible .face{outline:3px solid var(--ink);outline-offset:4px}
 .face{position:relative;background:var(--pass);border-radius:22px;padding:20px 20px 0;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;
   box-shadow:0 22px 40px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.35)}
-.face.back{position:absolute;inset:0;transform:rotateY(180deg);display:flex;flex-direction:column}
+.face{grid-area:1/1;display:flex;flex-direction:column}
+.face.back{transform:rotateY(180deg)}
+.front .stub{margin-top:auto}
 
 /* ---------- голографическая плёнка ---------- */
 .holo{position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:4;mix-blend-mode:overlay;
-  opacity:calc(.14 + (var(--tx) * var(--tx) + var(--ty) * var(--ty)) * .32);
+  opacity:calc(.07 + (var(--tx) * var(--tx) + var(--ty) * var(--ty)) * .13);
   background:
-    linear-gradient(115deg,transparent 35%,rgba(255,255,255,.85) 48%,rgba(255,255,255,.15) 54%,transparent 64%),
+    linear-gradient(115deg,transparent 35%,rgba(255,255,255,.4) 48%,rgba(255,255,255,.08) 54%,transparent 64%),
     linear-gradient(115deg,transparent 0%,#ff4fd8 18%,#7b6cff 30%,#2ee6ff 42%,#5dff9c 54%,#ffe45e 66%,#ff4fd8 78%,transparent 100%);
   background-size:300% 100%,300% 100%;
   background-position:calc(50% + var(--tx) * 50%) 0,calc(50% - var(--tx) * 50% - var(--ty) * 20%) 0}
-.sparkle{position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:4;mix-blend-mode:soft-light;opacity:calc(.12 + var(--tx) * var(--tx) * .2);
+.sparkle{position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:4;mix-blend-mode:soft-light;opacity:calc(.05 + var(--tx) * var(--tx) * .07);
   background-image:radial-gradient(rgba(255,255,255,.9) .8px,transparent 1.3px);background-size:7px 7px;
   background-position:calc(var(--tx) * 6px) calc(var(--ty) * 6px)}
 
@@ -83,12 +85,16 @@ body{background:var(--bg);color:var(--ink);font:400 16px/1.5 "Golos Text",system
 /* ---------- оборот: QR-коды ---------- */
 .back h2{font:400 30px/.95 "Dela Gothic One";margin:4px 0 6px}
 .back .hint{font-size:14px;margin:0 0 16px}
-.qrs{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;flex:1;align-content:start}
-.qr{display:flex;flex-direction:column;gap:8px;text-decoration:none;color:var(--ink)}
-.qr i{position:relative;z-index:5;display:grid;place-items:center;aspect-ratio:1;width:72%;align-self:center;border-radius:12px;background:#fff;border:2px dashed rgba(20,20,20,.35);font:500 12px "Golos Text";font-style:normal;color:#8a857b}
-.qr b{font:700 14px "Golos Text";text-align:center}
-.qr .open{position:relative;z-index:5;align-self:center;margin-top:-2px;padding:5px 12px;border-radius:999px;background:var(--ink);color:#fff;font:700 12px "Golos Text";text-decoration:none}
-.back .stub{margin-top:16px}
+.qrs{display:flex;flex-direction:column;gap:10px;flex:1}
+.qr{display:flex;align-items:center;gap:14px}
+.qr img{position:relative;z-index:5;width:92px;height:92px;flex:none;border-radius:10px;background:#fff;padding:6px;image-rendering:pixelated}
+.qr b{display:block;font:700 17px "Golos Text"}
+.qr span{display:block;font-size:13px;margin:1px 0 7px}
+.open{position:relative;z-index:5;display:inline-block;padding:6px 14px;border-radius:999px;background:var(--ink);color:#fff;font:700 13px "Golos Text";text-decoration:none}
+.phone{position:relative;z-index:5;display:block;margin-top:14px;padding-top:12px;border-top:2px solid rgba(20,20,20,.25);color:var(--ink);text-decoration:none}
+.phone b{display:block;font:400 clamp(20px,6.4vw,25px)/1 "Dela Gothic One";white-space:nowrap}
+.phone span{display:block;font-size:13px;margin-top:4px}
+.back .stub{margin-top:14px}
 
 .tap-hint{margin:18px 0 0;font-size:14px;color:var(--muted);text-align:center;min-height:1.5em}
 
@@ -96,9 +102,8 @@ body{background:var(--bg);color:var(--ink);font:400 16px/1.5 "Golos Text",system
 .facts{display:flex;justify-content:space-around;width:100%;margin-top:22px;text-align:center}
 .facts b{display:block;font:400 26px "Dela Gothic One"}
 .facts span{font-size:13px;color:var(--muted)}
+.legal{margin:26px 0 0;font-size:11px;line-height:1.4;color:var(--muted);text-align:center;max-width:36ch}
 
-.main-btn{position:fixed;z-index:20;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom));width:calc(min(430px,100vw) - 24px);height:54px;border-radius:14px;border:0;background:var(--ink);color:#fff;font:700 16px "Golos Text";cursor:pointer}
-.main-btn:active{transform:translateX(-50%) scale(.98)}
 
 @media (prefers-reduced-motion:reduce){
   .flipper{transition:transform .01s}
@@ -132,13 +137,13 @@ body{background:var(--bg);color:var(--ink);font:400 16px/1.5 "Golos Text",system
           <div class="face back" aria-hidden="true">
             <div class="hole"></div>
             <h2>На связи</h2>
-            <p class="hint">Наведи камеру на нужный код.</p>
+            <p class="hint">Наведи камеру на код или нажми «Открыть».</p>
             <div class="qrs">
-              <div class="qr"><i>QR</i><b>Telegram</b><a class="open" href="https://t.me/dj_nik_joy" target="_blank" rel="noopener">Открыть</a></div>
-              <div class="qr"><i>QR</i><b>Instagram*</b><a class="open" href="https://www.instagram.com/dj.nik_joy/" target="_blank" rel="noopener">Открыть</a></div>
-              <div class="qr"><i>QR</i><b>ВКонтакте</b><a class="open" href="https://vk.com/joy_dj" target="_blank" rel="noopener">Открыть</a></div>
-              <div class="qr"><i>QR</i><b>WhatsApp</b><a class="open" href="https://wa.me/79223165450" target="_blank" rel="noopener">Открыть</a></div>
+              <div class="qr"><img src="img/qr-telegram.png" alt="QR-код Telegram"><div><b>Telegram</b><span>@dj_nik_joy</span><a class="open" href="https://t.me/dj_nik_joy" target="_blank" rel="noopener">Открыть</a></div></div>
+              <div class="qr"><img src="img/qr-instagram.png" alt="QR-код Instagram"><div><b>Instagram*</b><span>@dj.nik_joy</span><a class="open" href="https://www.instagram.com/dj.nik_joy/" target="_blank" rel="noopener">Открыть</a></div></div>
+              <div class="qr"><img src="img/qr-site.png" alt="QR-код сайта"><div><b>Сайт</b><span>djjoy.ru</span><a class="open" href="https://djjoy.ru" target="_blank" rel="noopener">Открыть</a></div></div>
             </div>
+            <a class="phone open-tel" href="tel:+79223165450"><b>+7 922 316-54-50</b><span>Нажми, чтобы позвонить</span></a>
             <div class="stub"><span>Нажми, чтобы вернуть</span><span class="barcode"></span></div>
             <div class="holo"></div><div class="sparkle"></div>
           </div>
@@ -155,9 +160,9 @@ body{background:var(--bg);color:var(--ink);font:400 16px/1.5 "Golos Text",system
     <div><b>2019</b><span>за пультом</span></div>
     <div><b>РФ</b><span>вся страна</span></div>
   </div>
+  <p class="legal">*Instagram принадлежит компании Meta Platforms Inc., деятельность которой признана экстремистской и запрещена в России.</p>
 </div>
 
-<button class="main-btn" id="mainBtn">Оставить заявку</button>
 
 <script>
 const root = document.documentElement;
@@ -184,7 +189,7 @@ function flip(){
   if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
   startMotion();
 }
-flipper.addEventListener("click", e => { if (e.target.closest(".open")) return; flip(); });
+flipper.addEventListener("click", e => { if (e.target.closest(".open, .open-tel")) return; flip(); });
 flipper.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); flip(); } });
 
 /* ---------- переливание от наклона ---------- */
@@ -233,11 +238,6 @@ addEventListener("pointermove", e => {
   requestAnimationFrame(loop);
 })();
 
-/* ---------- заявка ---------- */
-document.getElementById("mainBtn").addEventListener("click", () => {
-  const url = "https://t.me/dj_nik_joy";
-  if (tg) tg.openTelegramLink(url); else open(url, "_blank", "noopener");
-});
 </script>
 </body>
 </html>
